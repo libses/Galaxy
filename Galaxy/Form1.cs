@@ -14,7 +14,26 @@ namespace Galaxy
     {
         public Form1()
         {
-            InitializeComponent();
+            Model.CreateRandomStars(200);
+            DoubleBuffered = true;
+            ClientSize = new Size(1280, 720);
+            var timer = new Timer() { Interval = 17 };
+            timer.Tick += (sender, args) =>
+            {
+                Invalidate();
+                Model.Iterate();
+            };
+            timer.Start();
+            Paint += (sender, args) =>
+            {
+                foreach (var star in Model.stars)
+                {
+                    args.Graphics.DrawRectangle(new Pen(Color.Blue),
+                        (float)star.Location.X,
+                        (float)star.Location.Y,
+                        1, 1);
+                }
+            };
         }
     }
 }
