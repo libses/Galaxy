@@ -11,7 +11,7 @@ namespace Galaxy
         public static Vector GetGraviForce(Star first, Star second)
         {
             var rand = new Random();
-            if ((first.Location - second.Location).Length < 0.3 && rand.NextDouble() > 0.999)
+            if ((first.Location - second.Location).Length < 0.1 && rand.NextDouble() > 1)
             {
                 Model.starsRemove.Add(first);
                 Model.starsRemove.Add(second);
@@ -20,7 +20,7 @@ namespace Galaxy
                 star.Speed = first.Speed + second.Speed;
                 Model.starsAdd.Add(star);
             }
-            var force =  first.Mass * second.Mass * 0.3 / (((first.Location  - second.Location).Length + (first.Mass + second.Mass)) * ((first.Location - second.Location).Length + (first.Mass + second.Mass)));
+            var force =  first.Mass * second.Mass * 0.003  / (((first.Location  - second.Location).Length + 65) * ((first.Location - second.Location).Length + 65));
             return (first.Location - second.Location).Normal * force;
         }
     }
