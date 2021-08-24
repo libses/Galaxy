@@ -11,7 +11,7 @@ namespace Galaxy
     {
         public static Color GetColor(double speed)
         {
-            speed = speed / 2;
+            speed /= 2;
             //5 is max
             //0.7 is white green x264
             //0.5 start greening
@@ -96,18 +96,20 @@ namespace Galaxy
             traces.Clear();
             for (int i = 0; i < stars.Count; i++)
             {
-                stars[i].Acceleration = new Vector(0, 0);
+                var first = stars[i];
+                first.Acceleration = new Vector(0, 0);
                 for (int j = i + 1; j < stars.Count; j++)
                 {
-                    var force = Physics.GetGraviForce(stars[i], stars[j]);
-                    stars[i].Acceleration += (force * -1) * (1 / stars[i].Mass);
-                    stars[j].Acceleration += force * (1 / stars[i].Mass);
+                    var second = stars[j];
+                    var force = Physics.GetGraviForce(first, second, 0.003);
+                    first.Acceleration += (force * -1) * (1 / first.Mass);
+                    second.Acceleration += force * (1 / second.Mass);
+                    //Physics.TryMergeStars();
                 }
                 var oldLocation = stars[i].Location;
-                stars[i].Location += stars[i].Speed + stars[i].Acceleration * (1d / 2d);
-                stars[i].Speed += stars[i].Acceleration;
-                var newLocation = stars[i].Location;
-                var trace = new Trace(oldLocation, newLocation, stars[i].Speed.Length, stars[i].Mass);
+                first.Location += first.Speed + first.Acceleration * (1d / 2d);
+                first.Speed += first.Acceleration;
+                var trace = new Trace(oldLocation, first.Location, first.Speed.Length, first.Mass);
                 traces.Add(trace);
             }
             starsRemove.Select(x => stars.Remove(x));
