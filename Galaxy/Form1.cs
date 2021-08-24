@@ -15,7 +15,7 @@ namespace Galaxy
     {
         public Form1()
         {
-            Model.CreateRandomStars(40);
+            Model.CreateRandomStars(180);
             DoubleBuffered = true;
             ClientSize = new Size(1280, 720);
             var timer = new Timer() { Interval = 17 };

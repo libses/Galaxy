@@ -103,11 +103,11 @@ namespace Galaxy
                 var newStar = new Star(GetRandomP(random) * xRes, GetRandomP(random) * yRes, GetRandomM(random));
                 var toCenter = newStar.Location - center;
 
-                newStar.Speed = new Vector(toCenter.Y/200, toCenter.X / -200);
-                newStar.Acceleration = toCenter;
+                newStar.Speed = new Vector(toCenter.Y/400, toCenter.X / -400);
+                //newStar.Acceleration = toCenter * -10;
                 stars.Add(newStar);
             }
-            stars.Add(new Star(xRes / 2, yRes / 2, 1));
+            stars.Add(new Star(xRes / 2, yRes / 2, 30000));
         }
 
         public static void Iterate()
@@ -119,7 +119,7 @@ namespace Galaxy
                 first.Acceleration = new Vector(0, 0);
                 for (int j = i + 1; j < stars.Count; j++)
                 {
-                    ApplyGravitation(first, stars[j], 10);
+                    ApplyGravitation(first, stars[j], 0.005);
                     //Physics.TryMergeStars();
                 }
                 traces.Add(MoveStarAndGetTrace(first));
@@ -140,7 +140,7 @@ namespace Galaxy
 
         public static void ApplyGravitation(Star first, Star second, double G)
         {
-            var force = Physics.GetGraviForce(first, second, G, 0);
+            var force = Physics.GetGraviForce(first, second, G, 2);
             first.Acceleration += (force * -1) * (1 / first.Mass);
             second.Acceleration += force * (1 / second.Mass);
         }
