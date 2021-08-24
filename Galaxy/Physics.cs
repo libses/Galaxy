@@ -10,9 +10,8 @@ namespace Galaxy
     {
         public static void TryMergeStars(Star first, Star second, double chance, double distance)
         {
-            var rand = new Random();
             if ((first.Location - second.Location).Length < distance 
-                && rand.NextDouble() < chance)
+                && Model.random.NextDouble() < chance)
             {
                 Model.starsRemove.Add(first);
                 Model.starsRemove.Add(second);
@@ -24,9 +23,9 @@ namespace Galaxy
                 Model.starsAdd.Add(star);
             }
         }
-        public static Vector GetGraviForce(Star first, Star second, double G)
+        public static Vector GetGraviForce(Star first, Star second, double G, double C)
         {
-            var force =  first.Mass * second.Mass * G  / (((first.Location  - second.Location).Length + 65) * ((first.Location - second.Location).Length + 65));
+            var force =  first.Mass * second.Mass * G  / (((first.Location  - second.Location).Length + C) * ((first.Location - second.Location).Length + C));
             return (first.Location - second.Location).Normal * force;
         }
     }

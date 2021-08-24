@@ -9,6 +9,20 @@ namespace Galaxy
 {
     public static class Model
     {
+        public static readonly List<Star> stars = new List<Star>();
+
+        public static readonly List<Star> starsRemove = new List<Star>();
+
+        public static readonly List<Star> starsAdd = new List<Star>();
+
+        public static readonly List<Trace> traces = new List<Trace>();
+
+        static readonly int xRes = 1600;
+
+        static readonly int yRes = 800;
+
+        public static Random random = new Random();
+
         public static Color GetColor(double speed)
         {
             speed /= 2;
@@ -49,12 +63,15 @@ namespace Galaxy
             if (B > 255) B = 255;
             return Color.FromArgb((int)R, (int)G, (int)B);
         }
-        public static readonly List<Star> stars = new List<Star>();
-        public static readonly List<Star> starsRemove = new List<Star>();
-        public static readonly List<Star> starsAdd = new List<Star>();
-        public static readonly List<Trace> traces = new List<Trace>();
-        static readonly int xRes = 1600;
-        static readonly int yRes = 800;
+
+        public static Trace MoveStarAndGetTrace(Star first)
+        {
+            var oldLocation = first.Location;
+            first.Location += first.Speed + first.Acceleration * (1d / 2d);
+            first.Speed += first.Acceleration;
+            return new Trace(oldLocation, first.Location, first.Speed.Length, first.Mass, 10);
+        }
+        
         public static double GetRandomP(Random random)
         {
             double u1 = 1.0 - random.NextDouble();
@@ -65,6 +82,7 @@ namespace Galaxy
              0.5 + 0.15 * randStdNormal;
             return randNormal;
         }
+
         public static double GetRandomM(Random random)
         {
             double u1 = 1.0 - random.NextDouble();
@@ -76,10 +94,10 @@ namespace Galaxy
             if (randNormal > 0) return randNormal;
             else return 3;
         }
+
         public static void CreateRandomStars(int starCount)
         {
             var center = new Vector(xRes / 2, yRes / 2);
-            Random random = new Random();
             for (int i = 0; i < starCount; i++)
             {
                 var newStar = new Star(GetRandomP(random) * xRes, GetRandomP(random) * yRes, GetRandomM(random));
@@ -89,8 +107,9 @@ namespace Galaxy
                 newStar.Acceleration = toCenter;
                 stars.Add(newStar);
             }
-            stars.Add(new Star(xRes / 2, yRes / 2, 1000000));
+            stars.Add(new Star(xRes / 2, yRes / 2, 1));
         }
+
         public static void Iterate()
         {
             traces.Clear();
@@ -100,18 +119,16 @@ namespace Galaxy
                 first.Acceleration = new Vector(0, 0);
                 for (int j = i + 1; j < stars.Count; j++)
                 {
-                    var second = stars[j];
-                    var force = Physics.GetGraviForce(first, second, 0.003);
-                    first.Acceleration += (force * -1) * (1 / first.Mass);
-                    second.Acceleration += force * (1 / second.Mass);
+                    ApplyGravitation(first, stars[j], 10);
                     //Physics.TryMergeStars();
                 }
-                var oldLocation = stars[i].Location;
-                first.Location += first.Speed + first.Acceleration * (1d / 2d);
-                first.Speed += first.Acceleration;
-                var trace = new Trace(oldLocation, first.Location, first.Speed.Length, first.Mass);
-                traces.Add(trace);
+                traces.Add(MoveStarAndGetTrace(first));
             }
+            ReplaceStars(starsRemove, starsAdd);
+        }
+
+        public static void ReplaceStars(List<Star> starsRemove, List<Star> starsAdd)
+        {
             starsRemove.Select(x => stars.Remove(x));
             starsRemove.Clear();
             foreach (var star in starsAdd)
@@ -119,6 +136,13 @@ namespace Galaxy
                 stars.Add(star);
             }
             starsAdd.Clear();
+        }
+
+        public static void ApplyGravitation(Star first, Star second, double G)
+        {
+            var force = Physics.GetGraviForce(first, second, G, 0);
+            first.Acceleration += (force * -1) * (1 / first.Mass);
+            second.Acceleration += force * (1 / second.Mass);
         }
 
     }
